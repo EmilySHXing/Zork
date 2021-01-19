@@ -1,5 +1,10 @@
 #include "Attack.h"
 
+/*
+Attack Class
+Construct with xml Node to store statement to print, conditions and actions
+*/
+
 Attack::Attack( ) { };
 Attack::~Attack( ) { };
 Attack::Attack(xml_node<> *pNode)
