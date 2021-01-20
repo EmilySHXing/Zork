@@ -1,5 +1,9 @@
 #include "Condition.h"
 
+/*
+Assign conditions
+*/
+
 Condition::Condition( ) { };
 Condition::~Condition( ) { };
 Condition::Condition(xml_node<>* pNode) {
