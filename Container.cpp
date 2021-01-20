@@ -1,5 +1,9 @@
 #include "Container.h"
 
+/*
+Create container with corresponding xml node
+*/
+
 Container::Container( ) { };
 
 Container::Container(xml_node<> *pNode)
