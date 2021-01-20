@@ -4,6 +4,9 @@ Creature::Creature( ) { };
 Creature::~Creature( ) { };
 Creature::Creature(xml_node<> *pNode)
 {
+    /*
+    Create creature object from xml node
+    */
     for(xml_node<> *cNode = pNode->first_node(); cNode; cNode=cNode->next_sibling())
     {
         if (strcmp(cNode->name(),"name") == 0)
