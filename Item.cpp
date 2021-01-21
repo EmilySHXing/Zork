@@ -1,5 +1,9 @@
 #include "Item.h"
 
+/*
+Create item from corresponding xml_node
+*/
+
 Item::Item( ) { };
 Item::~Item( ) { };
 Item::Item(xml_node<> *pNode)
