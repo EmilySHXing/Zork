@@ -4,6 +4,9 @@
 
 std::vector<std::string> get_command()
 {
+    /*
+    Gather user input and return as vector string
+    */
     std::string command;
     std::vector<std::string> vec;
     std::cout << "Enter command: ";
@@ -22,6 +25,10 @@ std::vector<std::string> get_command()
 
 bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, std::map<std::string, Room> &map_room, std::vector<std::string> &inventory, std::map<std::string, Container> &map_container, std::map<std::string, Item> &map_item, std::map<std::string, Creature> &map_creature)
 {
+    /*
+    Check if any trigger is triggered by command and take actions
+    */
+    // Convert vector command to string
     command.pop_back();
     std::string comm = "";
     std::vector<std::string>::iterator j;
@@ -32,17 +39,22 @@ bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, st
         if ((*j) != command.back()) comm += " ";
     }
 
+    // Search for trigger
     for (std::vector<Trigger>::iterator i = (*current)->triggers.begin(); i != (*current)->triggers.end(); ++i)
     {
         if ((*i).type == "used") continue;
         if (comm != (*i).command) continue;
         
         std::vector<Condition>::iterator k;
+        
+        // Check conditions
         for (k = (*i).conditions.begin(); k != (*i).conditions.end(); ++k)
         {
             bool check = check_cond((*k), inventory, map_room, map_container, map_item, map_creature);
             if (!check) break;
         }
+        
+        // Trigger actions
         if (k == (*i).conditions.end())
         {
             trig = true;
@@ -59,6 +71,7 @@ bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, st
         }
     }
 
+    // Search for trigger in containers
     for (std::vector<std::string>::iterator i = (*current)->containers.begin(); i != (*current)->containers.end(); ++i)
     {
         for (std::vector<Trigger>::iterator m = map_container[(*i)].triggers.begin(); m != map_container[(*i)].triggers.end(); ++m)
@@ -67,11 +80,15 @@ bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, st
             if (comm != (*m).command) continue;
 
             std::vector<Condition>::iterator n;
+            
+            // Check conditions
             for (n = (*m).conditions.begin(); n != (*m).conditions.end(); ++n)
             {
                 bool check = check_cond((*n), inventory, map_room, map_container, map_item, map_creature);
                 if (!check) break;
             }
+            
+            // Trigger actions
             if (n == (*m).conditions.end())
             {
                 trig = true;
@@ -90,6 +107,7 @@ bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, st
         }
     }
 
+    // Search for trigger in creatures
     for (std::vector<std::string>::iterator i = (*current)->creatures.begin(); i != (*current)->creatures.end(); ++i)
     {
         for (std::vector<Trigger>::iterator m = map_creature[(*i)].triggers.begin(); m != map_creature[(*i)].triggers.end(); ++m)
@@ -98,11 +116,15 @@ bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, st
             if ((*m).command != comm) continue;
 
             std::vector<Condition>::iterator n;
+            
+            // Check conditions
             for (n = (*m).conditions.begin(); n != (*m).conditions.end(); ++n)
             {
                 bool check = check_cond((*n), inventory, map_room, map_container, map_item, map_creature);
                 if (!check) break;
             }
+            
+            // Trigger actions
             if (n == (*m).conditions.end())
             {
                 trig = true;
@@ -121,6 +143,7 @@ bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, st
         }
     }
 
+    // Search for trigger in items
     for (std::vector<std::string>::iterator i = (*current)->items.begin(); i != (*current)->items.end(); ++i)
     {
         for (std::vector<Trigger>::iterator m = map_item[(*i)].triggers.begin(); m != map_item[(*i)].triggers.end(); ++m)
@@ -129,11 +152,15 @@ bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, st
             if ((*m).command != comm) continue;
 
             std::vector<Condition>::iterator n;
+            
+            // Check conditions
             for (n = (*m).conditions.begin(); n != (*m).conditions.end(); ++n)
             {
                 bool check = check_cond((*n), inventory, map_room, map_container, map_item, map_creature);
                 if (!check) break;
             }
+            
+            // Trigger actions
             if (n == (*m).conditions.end())
             {
                 trig = true;
@@ -157,18 +184,27 @@ bool trigger_cmd(bool &end, std::vector<std::string> command, Room **current, st
 
 bool trigger_cond(bool &end, Room **current, std::map<std::string, Room> &map_room, std::vector<std::string> &inventory, std::map<std::string, Container> &map_container, std::map<std::string, Item> &map_item, std::map<std::string, Creature> &map_creature)
 {
+    /*
+    Check if any trigger is triggerd by the new conditions
+    */
+    
     bool trig = false;
+    
+    // Search for trigger
     for (std::vector<Trigger>::iterator i = (*current)->triggers.begin(); i != (*current)->triggers.end(); ++i)
     {
         if ((*i).type == "used") continue;
         if ((*i).command != "") continue;
         
+        // Check conditions
         std::vector<Condition>::iterator k;
         for (k = (*i).conditions.begin(); k != (*i).conditions.end(); ++k)
         {
             bool check = check_cond((*k), inventory, map_room, map_container, map_item, map_creature);
             if (!check) break;
         }
+        
+        // Trigger actions
         if (k == (*i).conditions.end())
         {
             trig = true;
@@ -187,6 +223,7 @@ bool trigger_cond(bool &end, Room **current, std::map<std::string, Room> &map_ro
         }
     }
 
+    // Search for trigger in containers
     for (std::vector<std::string>::iterator i = (*current)->containers.begin(); i != (*current)->containers.end(); ++i)
     {
         for (std::vector<Trigger>::iterator m = map_container[(*i)].triggers.begin(); m != map_container[(*i)].triggers.end(); ++m)
@@ -194,12 +231,15 @@ bool trigger_cond(bool &end, Room **current, std::map<std::string, Room> &map_ro
             if ((*m).type == "used") continue;
             if ((*m).command != "") continue;
 
+            // Check conditions
             std::vector<Condition>::iterator n;
             for (n = (*m).conditions.begin(); n != (*m).conditions.end(); ++n)
             {
                 bool check = check_cond((*n), inventory, map_room, map_container, map_item, map_creature);
                 if (!check) break;
             }
+            
+            // Trigger actions
             if (n == (*m).conditions.end())
             {
                 trig = true;
@@ -218,6 +258,7 @@ bool trigger_cond(bool &end, Room **current, std::map<std::string, Room> &map_ro
         }
     }
 
+    // Search for trigger in creatures
     for (std::vector<std::string>::iterator i = (*current)->creatures.begin(); i != (*current)->creatures.end(); ++i)
     {
         for (std::vector<Trigger>::iterator m = map_creature[(*i)].triggers.begin(); m != map_creature[(*i)].triggers.end(); ++m)
@@ -225,12 +266,15 @@ bool trigger_cond(bool &end, Room **current, std::map<std::string, Room> &map_ro
             if ((*m).type == "used") continue;
             if ((*m).command != "") continue;
 
+            // Check conditions
             std::vector<Condition>::iterator n;
             for (n = (*m).conditions.begin(); n != (*m).conditions.end(); ++n)
             {
                 bool check = check_cond((*n), inventory, map_room, map_container, map_item, map_creature);
                 if (!check) break;
             }
+            
+            // Trigger actions
             if (n == (*m).conditions.end())
             {
                 trig = true;
@@ -250,6 +294,7 @@ bool trigger_cond(bool &end, Room **current, std::map<std::string, Room> &map_ro
         }
     }
 
+    // Search for trigger in items
     for (std::vector<std::string>::iterator i = (*current)->items.begin(); i != (*current)->items.end(); ++i)
     {
         for (std::vector<Trigger>::iterator m = map_item[(*i)].triggers.begin(); m != map_item[(*i)].triggers.end(); ++m)
@@ -257,12 +302,15 @@ bool trigger_cond(bool &end, Room **current, std::map<std::string, Room> &map_ro
             if ((*m).type == "used") continue;
             if ((*m).command != "") continue;
 
+            // Check conditions
             std::vector<Condition>::iterator n;
             for (n = (*m).conditions.begin(); n != (*m).conditions.end(); ++n)
             {
                 bool check = check_cond((*n), inventory, map_room, map_container, map_item, map_creature);
                 if (!check) break;
             }
+            
+            // Trigger actions
             if (n == (*m).conditions.end())
             {
                 trig = true;
@@ -287,12 +335,18 @@ bool trigger_cond(bool &end, Room **current, std::map<std::string, Room> &map_ro
 
 void process_command(bool &end, std::vector<std::string> command, Room **current, std::map<std::string, Room> &map_room, std::vector<std::string> &inventory, std::map<std::string, Container> &map_container, std::map<std::string, Item> &map_item, std::map<std::string, Creature> &map_creature)
 {
+    /*
+    Process user command
+    */
+    
+    // Check command length
     if (command.size() <= 1)
     {
         std::cout << "Error" << std::endl;
         return;
     }
-
+    
+    // Process movement
     if (command.front() == "n" || command.front() == "s" || command.front() == "w" || command.front() == "e")
     {
         if (command.size() != 2)
@@ -304,6 +358,7 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
         return;
     }
 
+    // Process inventory check
     if (command.front() == "i")
     {
         if (command.size() != 2)
@@ -315,6 +370,7 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
         return;
     }
 
+    // Process item taking
     if (command.front() == "take")
     {
         if (command.size() != 3)
@@ -326,6 +382,7 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
         return;
     }
 
+    // Process opening
     if (command.front() == "open")
     {
         if (command.size() != 3)
@@ -336,16 +393,21 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
         std::vector<std::string>::iterator i = command.begin();
         i++;
         std::string cont = (*i);
+        
+        // Check if exiting game
         if (cont == "exit" && (*current)->type == "exit") 
         {
             std::cout << "Game Over" << std::endl;
             end = false;
             return;
         }
+        
+        // Process container opening
         open_container(command, *current, map_container);
         return;
     }
 
+    // Process reading
     if (command.front() == "read")
     {
         if (command.size() != 3)
@@ -357,6 +419,7 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
         return;
     }
 
+    // Process item dropping
     if (command.front() == "drop")
     {
         if (command.size() != 3)
@@ -368,6 +431,7 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
         return;
     }
 
+    // Process putting item
     if (command.front() == "put")
     {
         if (command.size() != 5)
@@ -379,6 +443,7 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
         return;
     }
 
+    // Processs turning on or off
     if (command.front() == "turn")
     {
         if (command.size() != 4)
@@ -400,6 +465,7 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
         return;
     }
 
+    // Process attacking
     if (command.front() == "attack")
     {
         if (command.size() != 5)
@@ -431,18 +497,25 @@ void process_command(bool &end, std::vector<std::string> command, Room **current
 
 void movement(std::string direction, Room **current, std::map<std::string, Room> &map_room)
 {
+    /*
+    Move user n / w / s / e
+    */
+    
+    // Assign direction
     std::string dir;
     if (direction == "n")  dir.assign("north");
     else if (direction == "w")  dir.assign("west");
     else if (direction == "s")  dir.assign("south");
     else dir.assign("east");
 
+    // Check if path exists
     if ((*current)->map_border[dir] == "")
     {
         std::cout << "Can’t go that way." << std::endl;
         return;
     }
 
+    // Move in dir
     std::string next;
     next.assign((*current)->map_border[dir]);
     (*current) = &map_room[next];
@@ -451,11 +524,18 @@ void movement(std::string direction, Room **current, std::map<std::string, Room>
 
 void print_inventory(std::vector<std::string> inventory)
 {
+    /*
+    Display current user inventory
+    */
+    
+    // Check if inventory empty
     if (inventory.size() == 0)
     {
         std::cout << "Inventory: empty" << std::endl;
         return;
     }
+    
+    // Print every item
     std::cout << "Inventory: " << inventory.front();
 
     std::vector<std::string>::iterator i;
@@ -470,10 +550,16 @@ void print_inventory(std::vector<std::string> inventory)
 
 void take_item(std::vector<std::string> command, std::vector<std::string> &inventory, Room *current, std::map<std::string, Container> &map_container)
 {
+    /*
+    Take item into user inventory
+    */
+    
+    // Get item name
     std::vector<std::string>::iterator i = command.begin();
     i++;
     std::string item = (*i);
     
+    // Search for item in current room
     std::vector<std::string>::iterator pos = std::find((*current).items.begin(), (*current).items.end(), item);
     if (pos != (*current).items.end())
     {
@@ -483,6 +569,7 @@ void take_item(std::vector<std::string> command, std::vector<std::string> &inven
         return;
     }
 
+    // Search for item in containers in current room
     std::vector<std::string>::iterator j;
     for (j = (*current).containers.begin(); j != (*current).containers.end(); ++j)
     {
@@ -502,10 +589,16 @@ void take_item(std::vector<std::string> command, std::vector<std::string> &inven
 
 void open_container(std::vector<std::string> command, Room *current, std::map<std::string, Container> &map_container)
 {
+    /*
+    Open container in current room 
+    */
+    
+    // Get container name
     std::vector<std::string>::iterator i = command.begin();
     i++;
     std::string cont = (*i);
 
+    // Search if container exists in current room
     i = std::find((*current).containers.begin(), (*current).containers.end(), cont);
     if (i == (*current).containers.end())
     {
@@ -513,6 +606,7 @@ void open_container(std::vector<std::string> command, Room *current, std::map<st
         return;
     }
 
+    // Search for container and open
     std::map<std::string, Container>::iterator j = map_container.find(cont);
     if (j == map_container.end())
     {
@@ -522,12 +616,14 @@ void open_container(std::vector<std::string> command, Room *current, std::map<st
 
     map_container[cont].open = true;
 
+    // Check if container is empty
     if (map_container[cont].items.size() == 0)
     {
         std::cout << map_container[cont].name << " is empty." << std::endl;
         return;
     }
 
+    // Display all items in container
     std::cout << map_container[cont].name << " contains " << map_container[cont].items.front();
     bool check = false;
     for(i = map_container[cont].items.begin(); i != map_container[cont].items.end(); ++i)
@@ -540,10 +636,17 @@ void open_container(std::vector<std::string> command, Room *current, std::map<st
 
 void read_item(std::vector<std::string> command, std::vector<std::string> inventory, std::map<std::string, Item> map_item)
 {
+    /*
+    Display description on item
+    */
+    
+    // Search for item in inventory
     std::vector<std::string>::iterator i = command.begin();
     i++;
     std::string item = (*i);
     std::vector<std::string>::iterator pos = std::find(inventory.begin(), inventory.end(), item);
+    
+    // If item exists, print writing
     if (pos != inventory.end())
     {
         Item tmp = map_item[item];
@@ -562,9 +665,16 @@ void read_item(std::vector<std::string> command, std::vector<std::string> invent
 
 void drop_item(std::vector<std::string> command, std::vector<std::string> &inventory, Room *current)
 {
+    /*
+    Drop the item in current room
+    */
+    
+    // Get item name
     std::vector<std::string>::iterator i = command.begin();
     i++;
     std::string item = (*i);
+    
+    // Search for item in inventory and drop
     std::vector<std::string>::iterator pos = std::find(inventory.begin(), inventory.end(), item);
     if (pos != inventory.end())
     {
@@ -578,6 +688,11 @@ void drop_item(std::vector<std::string> command, std::vector<std::string> &inven
 
 void put_item(std::vector<std::string> command, Room *current, std::vector<std::string> &inventory, std::map<std::string, Container> &map_container)
 {
+    /*
+    Put item in container
+    */
+    
+    // Check if command is valid
     std::vector<std::string>::iterator i = command.begin();
     i++;
     i++;
@@ -588,6 +703,8 @@ void put_item(std::vector<std::string> command, Room *current, std::vector<std::
         return;
     }
     i--;
+    
+    // Search for item in inventory
     std::string item = (*i);
     std::vector<std::string>::iterator pos_i = std::find(inventory.begin(), inventory.end(), item);
     if (pos_i == inventory.end())
@@ -595,6 +712,8 @@ void put_item(std::vector<std::string> command, Room *current, std::vector<std::
         std::cout << "Error" << std::endl;
         return;
     }
+    
+    // Search for container in current room
     i++;
     i++;
     std::string cont = (*i);
@@ -604,6 +723,8 @@ void put_item(std::vector<std::string> command, Room *current, std::vector<std::
         std::cout << "Error" << std::endl;
         return;
     }
+    
+    // Put item if container has no restrictions
     if (map_container[cont].accepts.empty())
     {
         std::cout << "Item " << item << " added to " << cont << "." << std::endl;
@@ -611,6 +732,8 @@ void put_item(std::vector<std::string> command, Room *current, std::vector<std::
         map_container[cont].items.push_back(item);
         return;
     }
+    
+    // Check if the container accepts item and put
     pos_c = std::find(map_container[cont].accepts.begin(), map_container[cont].accepts.end(), item);
     if (pos_c == map_container[cont].accepts.end())
     {
@@ -624,18 +747,26 @@ void put_item(std::vector<std::string> command, Room *current, std::vector<std::
 
 void turn_on(bool &end, std::string item, Room ** current, std::vector<std::string> &inventory, std::map<std::string, Item> &map_item, std::map<std::string, Container> &map_container, std::map<std::string, Room> &map_room, std::map<std::string, Creature> &map_creature)
 {
+    /*
+    Turn on item
+    */
+    
+    // Search for item in inventory
     std::vector<std::string>::iterator pos = std::find(inventory.begin(), inventory.end(), item);
     if (pos == inventory.end())
     {
         std::cout << "Error" << std::endl;
         return;
     }
+    
+    // Check if item can be turned on
     if (map_item[item].turnon.action == "" && map_item[item].turnon.print == "")
     {
         std::cout << "Error" << std::endl;
         return;
     }
 
+    // Turn on item
     std::cout << "You activate the " << item << "." << std::endl;
     std::cout << map_item[item].turnon.print << std::endl;
     actions(end, map_item[item].turnon.action, current, inventory, map_container, map_item, map_room, map_creature);
@@ -643,18 +774,27 @@ void turn_on(bool &end, std::string item, Room ** current, std::vector<std::stri
 
 void attack_creature(bool &end, std::string crt, std::string itm, std::vector<std::string> &inventory, std::map<std::string, Item> &map_item, Room **current, std::map<std::string, Creature> &map_creature, std::map<std::string, Container> &map_container, std::map<std::string, Room> &map_room)
 {
+    /*
+    Attack creature in room with item
+    */
+    
+    // Search for creature in current room
     std::vector<std::string>::iterator i = std::find((*current)->creatures.begin(), (*current)->creatures.end(), crt);
     if (i == (*current)->creatures.end())
     {
         std::cout << "Error" << std::endl;
         return;
     }
+    
+    // Search for item in current inventory
     std::vector<std::string>::iterator j = std::find(inventory.begin(), inventory.end(), itm);
     if (j == inventory.end())
     {
         std::cout << "Error" << std::endl;
         return;
     }
+    
+    // Check attack conditions
     std::vector<Condition> conds = map_creature[crt].attack.conditions;
     bool check = false;
     if (conds.empty()) check = true;
@@ -669,6 +809,7 @@ void attack_creature(bool &end, std::string crt, std::string itm, std::vector<st
         return;
     }
 
+    // Check creature vulnerabilities
     check = false;
     std::vector<std::string> vuls = map_creature[crt].vulnerabilities;
     for (i = vuls.begin(); i != vuls.end(); ++i)
@@ -682,6 +823,7 @@ void attack_creature(bool &end, std::string crt, std::string itm, std::vector<st
         return;
     }
 
+    // Attack the creature
     std::cout << "You assault the " << crt << " with the " << itm << "." << std::endl;
     if (map_creature[crt].attack.print != "") std::cout << map_creature[crt].attack.print << std::endl;
     for (std::vector<std::string>::iterator it = map_creature[crt].attack.actions.begin(); it != map_creature[crt].attack.actions.end(); ++it)
@@ -693,6 +835,11 @@ void attack_creature(bool &end, std::string crt, std::string itm, std::vector<st
 
 bool check_cond(Condition cond, std::vector<std::string> inventory, std::map<std::string, Room> &map_room, std::map<std::string, Container> &map_container, std::map<std::string, Item> &map_item, std::map<std::string, Creature> &map_creature)
 {
+    /*
+    Check condition
+    */
+    
+    // Check which object does the condition apply to
     if (cond.owner == "")
     {
         std::map<std::string, Room>::iterator i_room = map_room.find(cond.object);
@@ -772,6 +919,11 @@ bool check_cond(Condition cond, std::vector<std::string> inventory, std::map<std
 
 void actions(bool &end, std::string action, Room ** current, std::vector<std::string> &inventory, std::map<std::string, Container> &map_container, std::map<std::string, Item> &map_item, std::map<std::string, Room> &map_room, std::map<std::string, Creature> &map_creature)
 {
+    /*
+    Add / delete / update objects in the background
+    */
+    
+    // Check if game terminates
     if (action == "Game Over")
     {
         std::cout << "Victory!" << std::endl;
@@ -779,6 +931,7 @@ void actions(bool &end, std::string action, Room ** current, std::vector<std::st
         return;
     }
 
+    // Convert to vector form
     std::istringstream iss(action);
     std::vector<std::string> act_vec;
     std::string tmp;
@@ -788,6 +941,7 @@ void actions(bool &end, std::string action, Room ** current, std::vector<std::st
         act_vec.push_back(tmp);
     }
 
+    // Add object
     if (act_vec.front() == "Add")
     {
         std::vector<std::string>::iterator i = act_vec.begin();
@@ -800,6 +954,7 @@ void actions(bool &end, std::string action, Room ** current, std::vector<std::st
         return;
     }
 
+    // Delete object
     if (act_vec.front() == "Delete")
     {
         std::vector<std::string>::iterator i = act_vec.begin();
@@ -809,6 +964,7 @@ void actions(bool &end, std::string action, Room ** current, std::vector<std::st
         return;
     }
 
+    // Update object
     if (act_vec.front() == "Update")
     {
         std::vector<std::string>::iterator i = act_vec.begin();
@@ -821,6 +977,7 @@ void actions(bool &end, std::string action, Room ** current, std::vector<std::st
         return;
     }
 
+    // Process command
     process_command(end, act_vec, current, map_room, inventory, map_container, map_item, map_creature);
     return;
 }
