@@ -1,12 +1,19 @@
 #include "Room.h"
 #include <iostream>
 
+/*
+Create room object with corresponding xml node
+*/
+
 Room::Room( ) { };
 Room::~Room( ) { };
 
 Room::Room(xml_node<> *pNode)
 {
+    // Set default type
     this->type.assign("regular");
+    
+    // Assign each field
     for(xml_node<> *cNode = pNode->first_node(); cNode; cNode=cNode->next_sibling())
     {
         if (strcmp(cNode->name(),"description") == 0)
