@@ -1,10 +1,17 @@
 #include "Trigger.h"
 
+/*
+Create trigger object with corresponding xml node
+*/
+
 Trigger::Trigger( ) { };
 Trigger::~Trigger( ) { };
 Trigger::Trigger(xml_node<> *pNode)
 {
+    // Set default type
     this->type.assign("single");
+    
+    // Assign each field
     for(xml_node<> *cNode = pNode->first_node(); cNode; cNode=cNode->next_sibling())
     {
         if (strcmp(cNode->name(),"type") == 0)
