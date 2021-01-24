@@ -1,5 +1,9 @@
 #include "Turnon.h"
 
+/*
+Create turnon object with corresponding xml node
+*/
+
 Turnon::Turnon( ) { };
 Turnon::~Turnon( ) { };
 Turnon::Turnon(xml_node<> *pNode) {
